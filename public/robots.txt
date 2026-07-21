@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /blog
+Allow: /blog/*
+
+# Disallow private admin dashboard & auth routes
+Disallow: /admin
+Disallow: /_authenticated
+Disallow: /_authenticated/*
+
+Sitemap: https://agrifarm.gh/sitemap.xml
