@@ -1,15 +1,19 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import heroImg from "@/assets/hero-farmer.jpg";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import marketImg from "@/assets/market.jpg";
-import cropsImg from "@/assets/crops.jpg";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { SmsAlertSection } from "@/components/sms-alert-section";
+import { TransportCalculator } from "@/components/transport-calculator";
+import { HarvestCalendar } from "@/components/harvest-calendar";
+import { FieldOfficersDirectory } from "@/components/field-officers-directory";
 import { getCanonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import { CheckCircle2, TrendingUp, Smartphone, MapPin, ArrowRight, UserCheck, Truck, Calendar, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AgriFarm — Real-time Ghana Market Prices & SMS Farmer Alerts" },
+      { title: "AgriFarm — Ghana Wholesale Crop Market Intelligence & SMS Alerts" },
       {
         name: "description",
         content:
@@ -35,224 +39,419 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const markets = [
-  { name: "Agbogbloshie", city: "Accra" },
-  { name: "Kaneshie", city: "Accra" },
-  { name: "Makola", city: "Accra" },
-  { name: "Kejetia", city: "Kumasi" },
-  { name: "Techiman", city: "Bono East" },
-  { name: "Tamale Central", city: "Tamale" },
-  { name: "Ho Central", city: "Volta" },
-  { name: "Takoradi Market Circle", city: "Western" },
+const marketsList = [
+  { id: "all", name: "All Ghana Markets", region: "Nationwide", count: 20 },
+  { id: "techiman", name: "Techiman Market", region: "Bono East", count: 18 },
+  { id: "kejetia", name: "Kejetia Central", region: "Kumasi, Ashanti", count: 16 },
+  { id: "agbogbloshie", name: "Agbogbloshie", region: "Accra, Greater Accra", count: 15 },
+  { id: "tamale", name: "Tamale Central", region: "Tamale, Northern", count: 14 },
+  { id: "kaneshie", name: "Kaneshie Market", region: "Accra, Greater Accra", count: 12 },
+  { id: "makola", name: "Makola Market", region: "Accra, Greater Accra", count: 12 },
+  { id: "ho", name: "Ho Central", region: "Ho, Volta Region", count: 10 },
+  { id: "takoradi", name: "Takoradi Circle", region: "Takoradi, Western", count: 11 },
 ];
 
-const priceSamples = [
-  { crop: "Maize", unit: "100kg bag", price: "GH₵ 620", change: "+4.2%", up: true },
-  { crop: "Tomato", unit: "Crate", price: "GH₵ 380", change: "-6.1%", up: false },
-  { crop: "Cassava", unit: "100kg bag", price: "GH₵ 210", change: "+1.8%", up: true },
-  { crop: "Yam", unit: "100 tubers", price: "GH₵ 1,450", change: "+2.4%", up: true },
-  { crop: "Plantain", unit: "Bunch", price: "GH₵ 85", change: "-1.2%", up: false },
-  { crop: "Pepper", unit: "Olonka", price: "GH₵ 95", change: "+8.3%", up: true },
+interface Commodity {
+  crop: string;
+  market: string;
+  region: string;
+  unit: string;
+  price: string;
+  rawPrice: number;
+  change: string;
+  up: boolean;
+  officer: string;
+  updated: string;
+}
+
+const allCommodities: Commodity[] = [
+  { crop: "Yellow Maize", market: "Techiman Market", region: "Bono East", unit: "100kg bag", price: "GH₵ 620", rawPrice: 620, change: "+4.2%", up: true, officer: "K. Addo", updated: "Today, 07:30 AM" },
+  { crop: "White Maize", market: "Kejetia Central", region: "Kumasi", unit: "100kg bag", price: "GH₵ 635", rawPrice: 635, change: "+2.8%", up: true, officer: "E. Mensah", updated: "Today, 08:15 AM" },
+  { crop: "Fresh Tomatoes", market: "Agbogbloshie", region: "Accra", unit: "Large Crate (50kg)", price: "GH₵ 380", rawPrice: 380, change: "-6.1%", up: false, officer: "A. Boateng", updated: "Today, 06:45 AM" },
+  { crop: "Pona Yam", market: "Techiman Market", region: "Bono East", unit: "100 tubers", price: "GH₵ 1,450", rawPrice: 1450, change: "+2.4%", up: true, officer: "K. Addo", updated: "Today, 07:30 AM" },
+  { crop: "Fresh Cassava", market: "Tamale Central", region: "Northern", unit: "100kg bag", price: "GH₵ 210", rawPrice: 210, change: "+1.8%", up: true, officer: "I. Alhassan", updated: "Today, 07:00 AM" },
+  { crop: "Apentu Plantain", market: "Kejetia Central", region: "Kumasi", unit: "Large Bunch", price: "GH₵ 85", rawPrice: 85, change: "-1.2%", up: false, officer: "E. Mensah", updated: "Today, 08:15 AM" },
+  { crop: "Red Bird Pepper", market: "Agbogbloshie", region: "Accra", unit: "Olonka", price: "GH₵ 95", rawPrice: 95, change: "+8.3%", up: true, officer: "A. Boateng", updated: "Today, 06:45 AM" },
+  { crop: "Yellow Onions", market: "Kaneshie Market", region: "Accra", unit: "50kg bag", price: "GH₵ 420", rawPrice: 420, change: "+3.5%", up: true, officer: "S. Quaye", updated: "Today, 08:00 AM" },
+  { crop: "Cowpea Beans", market: "Tamale Central", region: "Northern", unit: "100kg bag", price: "GH₵ 890", rawPrice: 890, change: "+1.1%", up: true, officer: "I. Alhassan", updated: "Today, 07:00 AM" },
+];
+
+const teamMembers = [
+  { name: "Djayouri Atsu Kelvin", role: "Lead Systems Architect & Full-stack Engineer" },
+  { name: "Kumordzi Mawuena", role: "Data Pipeline & Verification Specialist" },
+  { name: "Alhassan Abdul Basit", role: "SMS Gateway Integration Developer" },
+  { name: "Duku Bright", role: "Field Research & Data Operations Lead" },
+  { name: "Senyeme Damien Klenam", role: "UI/UX & Mobile Interface Designer" },
+  { name: "Ankamah Emmanuel Yeboah", role: "Database Engineer & Security Analyst" },
 ];
 
 function Index() {
+  const [selectedMarketId, setSelectedMarketId] = useState("all");
+  const [cropFilter, setCropFilter] = useState("All");
+
+  // Hero Interactive Query State
+  const [heroMarket, setHeroMarket] = useState("Techiman Market");
+  const [heroCrop, setHeroCrop] = useState("Yellow Maize");
+
+  const filteredCommodities = allCommodities.filter((item) => {
+    const matchesMarket =
+      selectedMarketId === "all" ||
+      item.market.toLowerCase().includes(selectedMarketId.toLowerCase());
+
+    const matchesCrop =
+      cropFilter === "All" || item.crop.toLowerCase().includes(cropFilter.toLowerCase());
+
+    return matchesMarket && matchesCrop;
+  });
+
+  const activeHeroItem =
+    allCommodities.find(
+      (c) => c.market.includes(heroMarket) && c.crop.includes(heroCrop)
+    ) || allCommodities[0];
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <SiteHeader />
 
+      {/* Hero Section */}
+      <section id="top" className="border-b border-border bg-card/60">
+        <div className="container-page py-12 lg:py-20 grid lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-7 space-y-6">
+            <div className="badge-tactile">
+              <span className="h-2 w-2 rounded-full bg-emerald-600"></span>
+              <span>Accra Technical University · Dept. of IST Capstone Project</span>
+            </div>
 
-      <section id="top" className="relative overflow-hidden">
-        <div className="container-page grid lg:grid-cols-2 gap-12 py-16 lg:py-24 items-center">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--harvest)]" />
-              Built in Ghana · For Ghanaian farmers
-            </span>
-            <h1 className="mt-6 font-display text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.02] tracking-tight">
-              Know the price <span className="italic text-primary">before</span> you go to market.
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.08] tracking-tight text-foreground">
+              Empowering Ghanaian Farmers & Traders with <span className="text-primary underline decoration-accent/40 decoration-wavy">Verified Market Prices</span>.
             </h1>
-            <p className="mt-6 text-lg text-muted-foreground max-w-xl">
-              AgriFarm brings real-time crop prices from major Ghanaian markets to any phone — with charts,
-              market comparisons, and SMS alerts, even when there's no internet.
+
+            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl">
+              AgriFarm delivers real-time wholesale crop prices collected directly from market gates at Kejetia, Techiman, Agbogbloshie & Tamale — accessible via web or automated SMS on any phone.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#cta" className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:opacity-90 transition">
-                Check today's prices
-                <ArrowIcon className="h-4 w-4" />
+
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <a
+                href="#sms-alerts"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:bg-primary/90 transition-colors shadow-xs"
+              >
+                <Smartphone className="w-4 h-4" />
+                <span>Get Free SMS Price Alerts</span>
               </a>
-              <a href="#how" className="inline-flex items-center rounded-full border border-border bg-card px-6 py-3 text-sm font-medium hover:bg-secondary transition">
-                See how it works
+              <a
+                href="#exchange"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-semibold hover:bg-secondary transition-colors"
+              >
+                <span>Browse Live Commodity Exchange</span>
+                <ArrowRight className="w-4 h-4" />
               </a>
             </div>
-            <dl className="mt-12 grid grid-cols-3 gap-6 max-w-md">
-              {[["8+", "Markets tracked"], ["20+", "Crops covered"], ["SMS", "No internet needed"]].map(([n, l]) => (
-                <div key={l}>
-                  <dt className="font-display text-3xl text-primary">{n}</dt>
-                  <dd className="text-xs text-muted-foreground mt-1">{l}</dd>
-                </div>
-              ))}
-            </dl>
+
+            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-border/80 max-w-lg">
+              <div>
+                <span className="font-display text-2xl font-bold text-foreground">8+</span>
+                <p className="text-xs text-muted-foreground mt-0.5">Wholesale Hubs</p>
+              </div>
+              <div>
+                <span className="font-display text-2xl font-bold text-foreground">20+</span>
+                <p className="text-xs text-muted-foreground mt-0.5">Tracked Crops</p>
+              </div>
+              <div>
+                <span className="font-display text-2xl font-bold text-primary">SMS 718</span>
+                <p className="text-xs text-muted-foreground mt-0.5">No Internet Needed</p>
+              </div>
+            </div>
           </div>
 
-          <div className="relative">
-            <img
-              src={heroImg}
-              alt="A Ghanaian farmer in a green field checking market prices on a phone"
-              width={1600}
-              height={1200}
-              className="rounded-2xl shadow-2xl w-full h-auto object-cover aspect-[4/5] lg:aspect-[5/6]"
-            />
-            <div className="absolute -bottom-6 -left-4 sm:left-8 bg-card rounded-xl shadow-xl p-4 w-64 border border-border">
-              <p className="text-xs text-muted-foreground">Techiman Market · today</p>
-              <p className="mt-1 font-display text-lg font-semibold">Maize · 100kg</p>
-              <div className="flex items-end justify-between mt-2">
-                <span className="font-display text-2xl text-primary">GH₵ 620</span>
-                <span className="text-xs font-medium text-[color:var(--soil)] bg-[color:var(--harvest)]/20 px-2 py-1 rounded-full">▲ 4.2%</span>
+          {/* Hero Interactive Market Query Box */}
+          <div className="lg:col-span-5">
+            <div className="card-tactile p-6 rounded-2xl border-2 border-primary/20 space-y-4">
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <span className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4" />
+                  Live Market Price Query
+                </span>
+                <span className="text-[11px] font-mono text-muted-foreground">Updated Today</span>
               </div>
-              <div className="mt-3 flex gap-1 items-end h-8">
-                {[3, 5, 4, 6, 5, 7, 8, 7, 9, 8, 10, 12].map((h, i) => (
-                  <span key={i} style={{ height: `${h * 8}%` }} className="flex-1 bg-primary/70 rounded-sm" />
-                ))}
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">Select Market</label>
+                  <select
+                    value={heroMarket}
+                    onChange={(e) => setHeroMarket(e.target.value)}
+                    className="w-full text-xs font-medium rounded-lg border border-border bg-background p-2.5 outline-none focus:border-primary"
+                  >
+                    <option value="Techiman">Techiman Market</option>
+                    <option value="Kejetia">Kejetia (Kumasi)</option>
+                    <option value="Agbogbloshie">Agbogbloshie (Accra)</option>
+                    <option value="Tamale">Tamale Central</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">Select Commodity</label>
+                  <select
+                    value={heroCrop}
+                    onChange={(e) => setHeroCrop(e.target.value)}
+                    className="w-full text-xs font-medium rounded-lg border border-border bg-background p-2.5 outline-none focus:border-primary"
+                  >
+                    <option value="Maize">Yellow Maize</option>
+                    <option value="Yam">Pona Yam</option>
+                    <option value="Tomato">Fresh Tomatoes</option>
+                    <option value="Cassava">Fresh Cassava</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="bg-secondary/70 rounded-xl p-4 border border-border space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-display font-semibold text-base text-foreground">{activeHeroItem.crop}</span>
+                  <span className={`text-xs font-mono font-semibold px-2 py-0.5 rounded ${activeHeroItem.up ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}`}>
+                    {activeHeroItem.change}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="font-mono text-3xl font-bold text-primary">{activeHeroItem.price}</span>
+                  <span className="text-xs text-muted-foreground">per {activeHeroItem.unit}</span>
+                </div>
+                <div className="pt-2 flex items-center justify-between text-[11px] text-muted-foreground border-t border-border/60">
+                  <span className="flex items-center gap-1">
+                    <UserCheck className="w-3.5 h-3.5 text-primary" /> Verified by {activeHeroItem.officer}
+                  </span>
+                  <span>{activeHeroItem.updated}</span>
+                </div>
+              </div>
+
+              <div className="bg-card p-3 rounded-xl border border-border text-xs flex items-center justify-between">
+                <span className="text-muted-foreground">SMS Query Code:</span>
+                <code className="font-mono font-bold text-foreground bg-secondary px-2 py-1 rounded border border-border">
+                  TEXT "PRICE {activeHeroItem.crop.split(" ")[0].toUpperCase()}" TO 718
+                </code>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="border-y border-border bg-secondary/50 py-16">
-        <div className="container-page grid md:grid-cols-3 gap-10">
-          <div>
-            <h2 className="font-display text-3xl md:text-4xl font-semibold">
-              Farmers lose money when middlemen own the price.
+      {/* Problem & Reality Comparison Section */}
+      <section className="py-16 border-b border-border bg-background">
+        <div className="container-page space-y-10">
+          <div className="max-w-3xl">
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary">Agricultural Market Realities</span>
+            <h2 className="mt-2 font-display text-3xl sm:text-4xl font-semibold">
+              Removing information asymmetry across Ghana's food corridors.
             </h2>
+            <p className="mt-3 text-muted-foreground text-sm leading-relaxed">
+              Without accurate market price data, smallholder farmers often accept below-market aggregator offers or waste fuel transporting perishable crops to oversupplied markets.
+            </p>
           </div>
-          <div className="md:col-span-2 grid sm:grid-cols-2 gap-6">
-            {[
-              { t: "No price transparency", d: "Farmers arrive at market without knowing what buyers paid yesterday — or what a neighbouring town pays today." },
-              { t: "Middlemen set the terms", d: "Without independent prices, aggregators dictate offers, especially in remote farming communities." },
-              { t: "Wasted trips", d: "Perishables spoil while farmers travel between markets hoping for a better deal." },
-              { t: "No history to plan with", d: "Farmers can't plan planting or storage without seeing how prices moved last season." },
-            ].map((p) => (
-              <div key={p.t} className="bg-card rounded-xl p-6 border border-border">
-                <h3 className="font-display text-lg font-semibold">{p.t}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{p.d}</p>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="card-tactile p-6 rounded-2xl border-l-4 border-l-red-500 space-y-3">
+              <h3 className="font-display font-semibold text-lg text-foreground">Traditional Market Friction</h3>
+              <ul className="space-y-2 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 font-bold">•</span>
+                  <span><strong>Middleman Pricing Power:</strong> Farmers travel without knowing what buyers paid yesterday in Kumasi or Accra.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 font-bold">•</span>
+                  <span><strong>Perishable Spoiled Crop Losses:</strong> Tomatoes and plantains spoil while searching for competitive buyers.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 font-bold">•</span>
+                  <span><strong>No Historical Trend Visibility:</strong> Planting schedules made without seasonal price history data.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="card-tactile p-6 rounded-2xl border-l-4 border-l-primary space-y-3">
+              <h3 className="font-display font-semibold text-lg text-foreground">The AgriFarm Advantage</h3>
+              <ul className="space-y-2 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-primary flex-none mt-0.5" />
+                  <span><strong>Verified Gate Prices:</strong> On-the-ground market officers submit verified wholesale prices every morning.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-primary flex-none mt-0.5" />
+                  <span><strong>Feature Phone Accessibility:</strong> SMS alerts and shortcode queries ensure connectivity even in zero-data zones.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-primary flex-none mt-0.5" />
+                  <span><strong>Multi-Market Comparison:</strong> Compare Kejetia vs Techiman rates before loading transport trucks.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Live Commodity Exchange Board */}
+      <section id="exchange" className="py-16 border-b border-border bg-card/40">
+        <div className="container-page space-y-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-widest text-primary">Live Wholesale Board</span>
+              <h2 className="mt-1 font-display text-3xl font-semibold">Today's Ghana Commodity Prices</h2>
+            </div>
+
+            {/* Filter Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              <span className="text-xs text-muted-foreground font-medium mr-1">Crop:</span>
+              {["All", "Maize", "Tomato", "Yam", "Cassava"].map((crop) => (
+                <button
+                  key={crop}
+                  onClick={() => setCropFilter(crop)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                    cropFilter === crop
+                      ? "bg-primary text-primary-foreground font-semibold"
+                      : "bg-secondary text-secondary-foreground hover:bg-border"
+                  }`}
+                >
+                  {crop}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Market Tab Selector */}
+          <div className="flex items-center gap-2 overflow-x-auto border-b border-border pb-3">
+            {marketsList.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setSelectedMarketId(m.id)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  selectedMarketId === m.id
+                    ? "bg-foreground text-background shadow-2xs"
+                    : "bg-card text-muted-foreground hover:text-foreground border border-border"
+                }`}
+              >
+                {m.name} <span className="opacity-70">({m.region})</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Commodity Cards Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredCommodities.map((c, i) => (
+              <div key={i} className="card-tactile card-tactile-hover p-5 rounded-2xl border border-border bg-card space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-display font-semibold text-lg text-foreground">{c.crop}</h3>
+                    <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5">
+                      <MapPin className="w-3 h-3 text-primary" /> {c.market} ({c.region})
+                    </span>
+                  </div>
+                  <span className={`text-xs font-mono font-semibold px-2 py-1 rounded-md ${c.up ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}`}>
+                    {c.up ? "▲" : "▼"} {c.change}
+                  </span>
+                </div>
+
+                <div className="pt-2 border-t border-border/60 flex items-baseline justify-between">
+                  <span className="font-mono text-2xl font-bold text-foreground">{c.price}</span>
+                  <span className="text-xs text-muted-foreground">per {c.unit}</span>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
+                  <span>Officer {c.officer}</span>
+                  <span className="font-mono">{c.updated}</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="features" className="py-24">
+      {/* NEW FEATURE 1: Crop Transport Profitability Calculator */}
+      <section id="calculator" className="py-16 border-b border-border bg-background">
         <div className="container-page">
-          <div className="max-w-2xl">
-            <p className="text-sm font-medium text-primary uppercase tracking-widest">What AgriFarm does</p>
-            <h2 className="mt-3 font-display text-4xl md:text-5xl font-semibold">Four tools, one fair market.</h2>
-          </div>
-
-          <div className="mt-14 grid md:grid-cols-2 gap-6">
-            <FeatureCard icon={<ChartIcon />} title="Live prices & trends" body="See today's price for every crop in every tracked market, plus 30-day trend charts to spot the right time to sell." />
-            <FeatureCard icon={<CompareIcon />} title="Compare markets side by side" body="One search shows what Techiman, Kejetia and Agbogbloshie are paying for the same crop right now." />
-            <FeatureCard icon={<SmsIcon />} title="SMS price alerts" body="Get a text when your crop crosses your target price. Powered by Africa's Talking — no smartphone required." accent />
-            <FeatureCard icon={<ShieldIcon />} title="Verified by officers" body="Prices are submitted by field officers and cross-checked before publishing. No rumours, no guesswork." />
-          </div>
-
-          <div className="mt-16 rounded-2xl border border-border bg-card overflow-hidden">
-            <div className="p-5 flex items-center justify-between border-b border-border">
-              <div>
-                <p className="font-display text-xl font-semibold">Today at Techiman Market</p>
-                <p className="text-xs text-muted-foreground">Sample view · updated daily by verified officers</p>
-              </div>
-              <span className="text-xs text-muted-foreground">21 Jul 2026</span>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border">
-              {priceSamples.map((p, i) => (
-                <div key={p.crop} className={`p-5 ${i >= 3 ? "border-t border-border" : ""}`}>
-                  <div className="flex items-center justify-between">
-                    <span className="font-display text-lg font-semibold">{p.crop}</span>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${p.up ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>
-                      {p.up ? "▲" : "▼"} {p.change.replace(/[+-]/, "")}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">per {p.unit}</p>
-                  <p className="mt-3 font-display text-2xl">{p.price}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <TransportCalculator />
         </div>
       </section>
 
-      <section id="sms-alerts" className="py-16 bg-background">
+      {/* NEW FEATURE 2: Ghana Crop Harvest & Price Scarcity Calendar */}
+      <section id="calendar" className="py-16 border-b border-border bg-card/40">
+        <div className="container-page">
+          <HarvestCalendar />
+        </div>
+      </section>
+
+      {/* NEW FEATURE 3: Verified Market Officers Directory */}
+      <section id="officers" className="py-16 border-b border-border bg-background">
+        <div className="container-page">
+          <FieldOfficersDirectory />
+        </div>
+      </section>
+
+      {/* Interactive SMS Alert Section */}
+      <section id="sms-alerts" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <SmsAlertSection />
         </div>
       </section>
 
-      <section id="how" className="py-24 bg-[color:var(--cream)] border-y border-border">
-        <div className="container-page grid lg:grid-cols-2 gap-16 items-center">
-          <img src={marketImg} alt="Vibrant Ghanaian open-air market" width={1200} height={900} loading="lazy" className="rounded-2xl w-full h-auto object-cover aspect-[4/3] shadow-xl" />
-          <div>
-            <p className="text-sm font-medium text-primary uppercase tracking-widest">How it works</p>
-            <h2 className="mt-3 font-display text-4xl md:text-5xl font-semibold">From the field officer's clipboard to your phone.</h2>
-            <ol className="mt-10 space-y-6">
-              {[
-                { t: "Officers collect prices", d: "Trusted field officers at each market record daily prices for tracked crops." },
-                { t: "Prices are verified", d: "Submissions are reviewed and outliers flagged before publishing." },
-                { t: "Farmers check the web or SMS", d: "Open agrifarm.gh, or text a crop name to our shortcode — a price comes right back." },
-                { t: "Sell smart", d: "Compare markets, watch trends, and travel only when the price justifies the trip." },
-              ].map((s, i) => (
-                <li key={s.t} className="flex gap-4">
-                  <span className="flex-none inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground font-display">{i + 1}</span>
-                  <div>
-                    <h3 className="font-display text-lg font-semibold">{s.t}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{s.d}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+      {/* Operational Pipeline / How it Works */}
+      <section id="how" className="py-16 border-b border-border bg-background">
+        <div className="container-page grid lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-5">
+            <img
+              src={marketImg}
+              alt="Vibrant Ghanaian market scene"
+              width={1000}
+              height={750}
+              className="rounded-2xl border border-border shadow-md object-cover aspect-[4/3]"
+            />
           </div>
-        </div>
-      </section>
 
-      <section id="markets" className="py-24">
-        <div className="container-page">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div className="max-w-xl">
-              <p className="text-sm font-medium text-primary uppercase tracking-widest">Markets we track</p>
-              <h2 className="mt-3 font-display text-4xl md:text-5xl font-semibold">Prices from eight major Ghanaian markets — and growing.</h2>
+          <div className="lg:col-span-7 space-y-6">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-widest text-primary">System Architecture</span>
+              <h2 className="mt-2 font-display text-3xl sm:text-4xl font-semibold">
+                From field officer clipboard to phone display in 4 steps.
+              </h2>
             </div>
-            <img src={cropsImg} alt="Basket of Ghanaian crops" width={1200} height={900} loading="lazy" className="hidden md:block h-32 w-32 rounded-full object-cover shadow-lg" />
-          </div>
-          <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-3">
-            {markets.map((m) => (
-              <div key={m.name} className="rounded-xl border border-border bg-card p-5 hover:border-primary hover:shadow-md transition">
-                <p className="font-display text-lg font-semibold">{m.name}</p>
-                <p className="text-xs text-muted-foreground mt-1">{m.city}</p>
-                <p className="mt-4 text-xs font-medium text-primary">Live prices →</p>
-              </div>
-            ))}
+
+            <div className="space-y-4">
+              {[
+                { step: "01", title: "Market Gate Price Recording", desc: "Designated field officers collect early morning wholesale quotes directly from traders at market entrances." },
+                { step: "02", title: "Verification & Outlier Detection", desc: "Submissions undergo automated price range verification to eliminate artificial market rumors." },
+                { step: "03", title: "Multi-Channel Broadcast", desc: "Verified price data feeds both the online dashboard and Africa's Talking SMS shortcode gateway." },
+                { step: "04", title: "Informed Trading & Transportation", desc: "Farmers compare prices and set target SMS alerts before dispatching produce to market." },
+              ].map((s) => (
+                <div key={s.step} className="flex items-start gap-4 p-3.5 rounded-xl border border-border bg-card">
+                  <span className="font-mono font-bold text-sm text-primary bg-secondary px-2.5 py-1 rounded-md">{s.step}</span>
+                  <div>
+                    <h3 className="font-display font-semibold text-base text-foreground">{s.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="team" className="py-24 bg-primary text-primary-foreground">
-        <div className="container-page">
-          <div className="max-w-2xl">
-            <p className="text-sm font-medium uppercase tracking-widest opacity-80">The team</p>
-            <h2 className="mt-3 font-display text-4xl md:text-5xl font-semibold">Group 39 — Accra Technical University</h2>
-            <p className="mt-4 opacity-80">
-              A Diploma in Information Technology final-year project from the Department of Information Systems
-              Technology. Supervised by Dr. Duodu Yaw Nana.
+      {/* Academic Capstone Project Showcase */}
+      <section id="team" className="py-16 border-b border-border bg-card/40">
+        <div className="container-page space-y-8">
+          <div className="max-w-3xl">
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary">Academic Innovation</span>
+            <h2 className="mt-2 font-display text-3xl font-semibold">Group 39 — Accra Technical University</h2>
+            <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              Diploma in Information Technology Final Year Capstone Project · Department of Information Systems Technology, Faculty of Applied Sciences. Supervised by <strong>Dr. Duodu Yaw Nana</strong>.
             </p>
           </div>
-          <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {["Djayouri Atsu Kelvin","Kumordzi Mawuena","Alhassan Abdul Basit","Duku Bright","Senyeme Damien Klenam","Ankamah Emmanuel Yeboah"].map((name) => (
-              <div key={name} className="rounded-xl bg-primary-foreground/10 backdrop-blur p-5 border border-primary-foreground/15">
-                <div className="flex items-center gap-3">
-                  <span className="h-10 w-10 rounded-full bg-[color:var(--harvest)] text-[color:var(--soil)] inline-flex items-center justify-center font-display font-semibold">
-                    {name.split(" ").slice(0, 2).map((w) => w[0]).join("")}
-                  </span>
-                  <p className="font-display text-lg">{name}</p>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {teamMembers.map((member) => (
+              <div key={member.name} className="card-tactile p-4 rounded-xl border border-border bg-card flex items-start gap-3">
+                <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-display font-bold text-xs flex-none">
+                  {member.name.split(" ").map(n => n[0]).slice(0, 2).join("")}
+                </div>
+                <div>
+                  <h4 className="font-display font-semibold text-sm text-foreground">{member.name}</h4>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{member.role}</p>
                 </div>
               </div>
             ))}
@@ -260,95 +459,7 @@ function Index() {
         </div>
       </section>
 
-      <section id="cta" className="py-24">
-        <div className="container-page">
-          <div className="rounded-3xl bg-[color:var(--soil)] text-primary-foreground p-10 md:p-16 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,var(--harvest),transparent_60%)]" />
-            <div className="relative max-w-2xl">
-              <h2 className="font-display text-4xl md:text-5xl font-semibold">Start getting fair prices this harvest.</h2>
-              <p className="mt-4 opacity-90">
-                Text <span className="font-mono bg-white/10 px-2 py-0.5 rounded">PRICE MAIZE</span> to our shortcode,
-                or check live prices online. Free for farmers.
-              </p>
-              <form className="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg" onSubmit={(e) => e.preventDefault()}>
-                <input type="tel" placeholder="Your phone number" className="flex-1 rounded-full px-5 py-3 bg-white/10 border border-white/20 placeholder:text-white/60 text-white outline-none focus:border-white" />
-                <button type="submit" className="rounded-full bg-[color:var(--harvest)] text-[color:var(--soil)] font-medium px-6 py-3 hover:opacity-90 transition">
-                  Get free alerts
-                </button>
-              </form>
-              <p className="mt-3 text-xs opacity-70">No spam. Stop anytime by texting STOP.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <footer className="border-t border-border py-10">
-        <div className="container-page flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <LeafIcon className="h-3 w-3" />
-            </span>
-            <span>AgriFarm · Group 39 · Accra Technical University · 2025/2026</span>
-          </div>
-          <p>Built with care for Ghana's farmers.</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
-  );
-}
-
-function FeatureCard({ icon, title, body, accent }: { icon: React.ReactNode; title: string; body: string; accent?: boolean }) {
-  return (
-    <div className={`rounded-2xl p-8 border transition hover:-translate-y-0.5 ${accent ? "bg-[color:var(--harvest)]/15 border-[color:var(--harvest)]/40" : "bg-card border-border"}`}>
-      <div className={`inline-flex h-11 w-11 items-center justify-center rounded-xl ${accent ? "bg-[color:var(--harvest)] text-[color:var(--soil)]" : "bg-primary text-primary-foreground"}`}>
-        {icon}
-      </div>
-      <h3 className="mt-5 font-display text-2xl font-semibold">{title}</h3>
-      <p className="mt-2 text-muted-foreground">{body}</p>
-    </div>
-  );
-}
-
-function LeafIcon({ className = "h-5 w-5" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M11 20A7 7 0 0 1 4 13c0-4 3-8 8-9 1 4 4 7 8 7 0 5-4 9-9 9Z" />
-      <path d="M4 13c4 0 8-3 9-8" />
-    </svg>
-  );
-}
-function ArrowIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12h14" /><path d="m13 6 6 6-6 6" />
-    </svg>
-  );
-}
-function ChartIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 3v18h18" /><path d="m7 14 4-4 4 4 5-6" />
-    </svg>
-  );
-}
-function CompareIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7 4v16" /><path d="m3 8 4-4 4 4" /><path d="M17 20V4" /><path d="m21 16-4 4-4-4" />
-    </svg>
-  );
-}
-function SmsIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  );
-}
-function ShieldIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5z" /><path d="m9 12 2 2 4-4" />
-    </svg>
   );
 }

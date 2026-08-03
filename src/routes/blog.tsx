@@ -11,7 +11,7 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getCanonicalUrl, DEFAULT_OG_IMAGE, buildBlogSchema } from "@/lib/seo";
-import { Search, X, Clock, Tag, Sparkles, SlidersHorizontal } from "lucide-react";
+import { Search, X, Clock, Tag, BookOpen, SlidersHorizontal } from "lucide-react";
 
 export const Route = createFileRoute("/blog")({
   head: () => ({
@@ -85,8 +85,9 @@ function BlogList() {
       <main className="flex-1 container-page py-12 lg:py-16">
         {/* Header section */}
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary uppercase tracking-widest mb-3">
-            <Sparkles className="h-3.5 w-3.5" /> The AgriFarm Journal
+          <div className="badge-tactile mb-3">
+            <BookOpen className="h-3.5 w-3.5 text-primary" />
+            <span>AgriFarm Market Intelligence Journal</span>
           </div>
           <h1 className="font-display text-4xl sm:text-5xl font-semibold leading-tight">
             News from the fields and markets.
