@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import marketImg from "@/assets/market.jpg";
+import maizeImg from "@/assets/maize-harvest.png";
+import tomatoesImg from "@/assets/tomatoes-fresh.png";
+import yamImg from "@/assets/pona-yam.png";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SmsAlertSection } from "@/components/sms-alert-section";
@@ -8,7 +11,7 @@ import { TransportCalculator } from "@/components/transport-calculator";
 import { HarvestCalendar } from "@/components/harvest-calendar";
 import { FieldOfficersDirectory } from "@/components/field-officers-directory";
 import { getCanonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
-import { CheckCircle2, TrendingUp, Smartphone, MapPin, ArrowRight, UserCheck, Truck, Calendar, ShieldCheck } from "lucide-react";
+import { CheckCircle2, TrendingUp, Smartphone, MapPin, ArrowRight, UserCheck, Image as ImageIcon } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -62,13 +65,14 @@ interface Commodity {
   up: boolean;
   officer: string;
   updated: string;
+  image?: string;
 }
 
 const allCommodities: Commodity[] = [
-  { crop: "Yellow Maize", market: "Techiman Market", region: "Bono East", unit: "100kg bag", price: "GH₵ 620", rawPrice: 620, change: "+4.2%", up: true, officer: "K. Addo", updated: "Today, 07:30 AM" },
-  { crop: "White Maize", market: "Kejetia Central", region: "Kumasi", unit: "100kg bag", price: "GH₵ 635", rawPrice: 635, change: "+2.8%", up: true, officer: "E. Mensah", updated: "Today, 08:15 AM" },
-  { crop: "Fresh Tomatoes", market: "Agbogbloshie", region: "Accra", unit: "Large Crate (50kg)", price: "GH₵ 380", rawPrice: 380, change: "-6.1%", up: false, officer: "A. Boateng", updated: "Today, 06:45 AM" },
-  { crop: "Pona Yam", market: "Techiman Market", region: "Bono East", unit: "100 tubers", price: "GH₵ 1,450", rawPrice: 1450, change: "+2.4%", up: true, officer: "K. Addo", updated: "Today, 07:30 AM" },
+  { crop: "Yellow Maize", market: "Techiman Market", region: "Bono East", unit: "100kg bag", price: "GH₵ 620", rawPrice: 620, change: "+4.2%", up: true, officer: "K. Addo", updated: "Today, 07:30 AM", image: maizeImg },
+  { crop: "White Maize", market: "Kejetia Central", region: "Kumasi", unit: "100kg bag", price: "GH₵ 635", rawPrice: 635, change: "+2.8%", up: true, officer: "E. Mensah", updated: "Today, 08:15 AM", image: maizeImg },
+  { crop: "Fresh Tomatoes", market: "Agbogbloshie", region: "Accra", unit: "Large Crate (50kg)", price: "GH₵ 380", rawPrice: 380, change: "-6.1%", up: false, officer: "A. Boateng", updated: "Today, 06:45 AM", image: tomatoesImg },
+  { crop: "Pona Yam", market: "Techiman Market", region: "Bono East", unit: "100 tubers", price: "GH₵ 1,450", rawPrice: 1450, change: "+2.4%", up: true, officer: "K. Addo", updated: "Today, 07:30 AM", image: yamImg },
   { crop: "Fresh Cassava", market: "Tamale Central", region: "Northern", unit: "100kg bag", price: "GH₵ 210", rawPrice: 210, change: "+1.8%", up: true, officer: "I. Alhassan", updated: "Today, 07:00 AM" },
   { crop: "Apentu Plantain", market: "Kejetia Central", region: "Kumasi", unit: "Large Bunch", price: "GH₵ 85", rawPrice: 85, change: "-1.2%", up: false, officer: "E. Mensah", updated: "Today, 08:15 AM" },
   { crop: "Red Bird Pepper", market: "Agbogbloshie", region: "Accra", unit: "Olonka", price: "GH₵ 95", rawPrice: 95, change: "+8.3%", up: true, officer: "A. Boateng", updated: "Today, 06:45 AM" },
@@ -117,8 +121,8 @@ function Index() {
       <section id="top" className="border-b border-border bg-card/60">
         <div className="container-page py-12 lg:py-20 grid lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <div className="badge-tactile">
-              <span className="h-2 w-2 rounded-full bg-emerald-600"></span>
+            <div className="badge-tactile animate-pulse-subtle">
+              <span className="h-2 w-2 rounded-full bg-emerald-600 animate-ping"></span>
               <span>Accra Technical University · Dept. of IST Capstone Project</span>
             </div>
 
@@ -133,14 +137,14 @@ function Index() {
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <a
                 href="#sms-alerts"
-                className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:bg-primary/90 transition-colors shadow-xs"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:bg-primary/90 transition-all hover:-translate-y-0.5 shadow-xs"
               >
                 <Smartphone className="w-4 h-4" />
                 <span>Get Free SMS Price Alerts</span>
               </a>
               <a
                 href="#exchange"
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-semibold hover:bg-secondary transition-colors"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-semibold hover:bg-secondary transition-all hover:-translate-y-0.5"
               >
                 <span>Browse Live Commodity Exchange</span>
                 <ArrowRight className="w-4 h-4" />
@@ -163,15 +167,17 @@ function Index() {
             </div>
           </div>
 
-          {/* Hero Interactive Market Query Box */}
+          {/* Hero Interactive Market Query Box with Micro Float Animation */}
           <div className="lg:col-span-5">
-            <div className="card-tactile p-6 rounded-2xl border-2 border-primary/20 space-y-4">
+            <div className="card-tactile p-6 rounded-2xl border-2 border-primary/20 space-y-4 animate-float shadow-md">
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <span className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4" />
                   Live Market Price Query
                 </span>
-                <span className="text-[11px] font-mono text-muted-foreground">Updated Today</span>
+                <span className="text-[11px] font-mono text-muted-foreground flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Live Feed
+                </span>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-3">
@@ -180,7 +186,7 @@ function Index() {
                   <select
                     value={heroMarket}
                     onChange={(e) => setHeroMarket(e.target.value)}
-                    className="w-full text-xs font-medium rounded-lg border border-border bg-background p-2.5 outline-none focus:border-primary"
+                    className="w-full text-xs font-medium rounded-lg border border-border bg-background p-2.5 outline-none focus:border-primary transition-colors"
                   >
                     <option value="Techiman">Techiman Market</option>
                     <option value="Kejetia">Kejetia (Kumasi)</option>
@@ -194,7 +200,7 @@ function Index() {
                   <select
                     value={heroCrop}
                     onChange={(e) => setHeroCrop(e.target.value)}
-                    className="w-full text-xs font-medium rounded-lg border border-border bg-background p-2.5 outline-none focus:border-primary"
+                    className="w-full text-xs font-medium rounded-lg border border-border bg-background p-2.5 outline-none focus:border-primary transition-colors"
                   >
                     <option value="Maize">Yellow Maize</option>
                     <option value="Yam">Pona Yam</option>
@@ -204,7 +210,7 @@ function Index() {
                 </div>
               </div>
 
-              <div className="bg-secondary/70 rounded-xl p-4 border border-border space-y-2">
+              <div className="bg-secondary/70 rounded-xl p-4 border border-border space-y-3 key={activeHeroItem.crop} animate-price-bump">
                 <div className="flex items-center justify-between">
                   <span className="font-display font-semibold text-base text-foreground">{activeHeroItem.crop}</span>
                   <span className={`text-xs font-mono font-semibold px-2 py-0.5 rounded ${activeHeroItem.up ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}`}>
@@ -234,8 +240,78 @@ function Index() {
         </div>
       </section>
 
-      {/* Problem & Reality Comparison Section */}
+      {/* NEW SECTION: Ghanaian Produce Gallery & Gate Photography */}
       <section className="py-16 border-b border-border bg-background">
+        <div className="container-page space-y-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-widest text-primary flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-primary" /> Market Gate Photography
+              </span>
+              <h2 className="mt-1 font-display text-3xl font-semibold">Real Ghanaian Market Produce</h2>
+            </div>
+            <p className="text-xs text-muted-foreground max-w-md">
+              High-volume staples monitored daily by stationed field officers at Techiman, Kejetia, and Agbogbloshie.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="group rounded-2xl overflow-hidden border border-border bg-card shadow-xs hover:shadow-md transition-all">
+              <div className="relative overflow-hidden aspect-[4/3]">
+                <img
+                  src={maizeImg}
+                  alt="Fresh Ghanaian yellow maize harvest in woven baskets"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute top-3 right-3 bg-foreground/80 backdrop-blur text-background font-mono text-[10px] font-bold px-2 py-1 rounded">
+                  Techiman Market
+                </div>
+              </div>
+              <div className="p-4 space-y-1">
+                <h3 className="font-display font-semibold text-base text-foreground">Yellow Maize (Corn)</h3>
+                <p className="text-xs text-muted-foreground">100kg Wholesale Bag · GH₵ 620 (+4.2%)</p>
+              </div>
+            </div>
+
+            <div className="group rounded-2xl overflow-hidden border border-border bg-card shadow-xs hover:shadow-md transition-all">
+              <div className="relative overflow-hidden aspect-[4/3]">
+                <img
+                  src={tomatoesImg}
+                  alt="Fresh ripe red Ghanaian tomatoes in market wooden crates"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute top-3 right-3 bg-foreground/80 backdrop-blur text-background font-mono text-[10px] font-bold px-2 py-1 rounded">
+                  Agbogbloshie Accra
+                </div>
+              </div>
+              <div className="p-4 space-y-1">
+                <h3 className="font-display font-semibold text-base text-foreground">Fresh Red Tomatoes</h3>
+                <p className="text-xs text-muted-foreground">50kg Wholesale Crate · GH₵ 380 (-6.1%)</p>
+              </div>
+            </div>
+
+            <div className="group rounded-2xl overflow-hidden border border-border bg-card shadow-xs hover:shadow-md transition-all">
+              <div className="relative overflow-hidden aspect-[4/3]">
+                <img
+                  src={yamImg}
+                  alt="Large Pona yams stacked in rows at Techiman wholesale market"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute top-3 right-3 bg-foreground/80 backdrop-blur text-background font-mono text-[10px] font-bold px-2 py-1 rounded">
+                  Techiman Market
+                </div>
+              </div>
+              <div className="p-4 space-y-1">
+                <h3 className="font-display font-semibold text-base text-foreground">Pona Yam Tubers</h3>
+                <p className="text-xs text-muted-foreground">100 Tubers Lot · GH₵ 1,450 (+2.4%)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Problem & Reality Comparison Section */}
+      <section className="py-16 border-b border-border bg-card/40">
         <div className="container-page space-y-10">
           <div className="max-w-3xl">
             <span className="text-xs font-semibold uppercase tracking-widest text-primary">Agricultural Market Realities</span>
@@ -288,7 +364,7 @@ function Index() {
       </section>
 
       {/* Live Commodity Exchange Board */}
-      <section id="exchange" className="py-16 border-b border-border bg-card/40">
+      <section id="exchange" className="py-16 border-b border-border bg-background">
         <div className="container-page space-y-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
@@ -336,14 +412,21 @@ function Index() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredCommodities.map((c, i) => (
               <div key={i} className="card-tactile card-tactile-hover p-5 rounded-2xl border border-border bg-card space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-display font-semibold text-lg text-foreground">{c.crop}</h3>
-                    <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5">
-                      <MapPin className="w-3 h-3 text-primary" /> {c.market} ({c.region})
+                <div className="flex items-start justify-between gap-3">
+                  {c.image && (
+                    <img
+                      src={c.image}
+                      alt={c.crop}
+                      className="w-12 h-12 rounded-xl object-cover border border-border flex-none"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-display font-semibold text-base text-foreground truncate">{c.crop}</h3>
+                    <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5 truncate">
+                      <MapPin className="w-3 h-3 text-primary flex-none" /> {c.market}
                     </span>
                   </div>
-                  <span className={`text-xs font-mono font-semibold px-2 py-1 rounded-md ${c.up ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}`}>
+                  <span className={`text-xs font-mono font-semibold px-2 py-1 rounded-md flex-none ${c.up ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}`}>
                     {c.up ? "▲" : "▼"} {c.change}
                   </span>
                 </div>
@@ -363,36 +446,36 @@ function Index() {
         </div>
       </section>
 
-      {/* NEW FEATURE 1: Crop Transport Profitability Calculator */}
-      <section id="calculator" className="py-16 border-b border-border bg-background">
+      {/* Feature 1: Crop Transport Profitability Calculator */}
+      <section id="calculator" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <TransportCalculator />
         </div>
       </section>
 
-      {/* NEW FEATURE 2: Ghana Crop Harvest & Price Scarcity Calendar */}
-      <section id="calendar" className="py-16 border-b border-border bg-card/40">
+      {/* Feature 2: Ghana Crop Harvest & Price Scarcity Calendar */}
+      <section id="calendar" className="py-16 border-b border-border bg-background">
         <div className="container-page">
           <HarvestCalendar />
         </div>
       </section>
 
-      {/* NEW FEATURE 3: Verified Market Officers Directory */}
-      <section id="officers" className="py-16 border-b border-border bg-background">
+      {/* Feature 3: Verified Market Officers Directory */}
+      <section id="officers" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <FieldOfficersDirectory />
         </div>
       </section>
 
       {/* Interactive SMS Alert Section */}
-      <section id="sms-alerts" className="py-16 border-b border-border bg-card/40">
+      <section id="sms-alerts" className="py-16 border-b border-border bg-background">
         <div className="container-page">
           <SmsAlertSection />
         </div>
       </section>
 
       {/* Operational Pipeline / How it Works */}
-      <section id="how" className="py-16 border-b border-border bg-background">
+      <section id="how" className="py-16 border-b border-border bg-card/60">
         <div className="container-page grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5">
             <img
@@ -433,7 +516,7 @@ function Index() {
       </section>
 
       {/* Academic Capstone Project Showcase */}
-      <section id="team" className="py-16 border-b border-border bg-card/40">
+      <section id="team" className="py-16 border-b border-border bg-background">
         <div className="container-page space-y-8">
           <div className="max-w-3xl">
             <span className="text-xs font-semibold uppercase tracking-widest text-primary">Academic Innovation</span>
