@@ -79,22 +79,28 @@ export function SiteHeader() {
             Commodities
           </a>
           <a href="#comparison" className="text-muted-foreground hover:text-foreground transition-colors">
-            Compare Markets
+            Compare
+          </a>
+          <a href="#converter" className="text-muted-foreground hover:text-foreground transition-colors">
+            Unit/kg
           </a>
           <a href="#calculator" className="text-muted-foreground hover:text-foreground transition-colors">
-            Freight Calculator
+            Freight
           </a>
-          <a href="#weather" className="text-muted-foreground hover:text-foreground transition-colors">
-            Weather & Roads
+          <a href="#planner" className="text-muted-foreground hover:text-foreground transition-colors">
+            Profit Planner
           </a>
           <a href="#trade-board" className="text-muted-foreground hover:text-foreground transition-colors">
             Trade Board
+          </a>
+          <a href="#voice" className="text-muted-foreground hover:text-foreground transition-colors">
+            Voice IVR
           </a>
           <a href="#ussd" className="text-muted-foreground hover:text-foreground transition-colors font-mono">
             *718#
           </a>
           <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors" activeProps={{ className: "text-foreground font-semibold" }}>
-            Field Journal
+            Journal
           </Link>
           {isAdmin && (
             <Link to="/admin" className="text-primary font-semibold hover:underline">

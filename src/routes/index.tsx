@@ -14,6 +14,10 @@ import { MarketComparisonMatrix } from "@/components/market-comparison-matrix";
 import { RegionalWeatherWidget } from "@/components/regional-weather-widget";
 import { UssdSimulator } from "@/components/ussd-simulator";
 import { FarmgateTradeBoard } from "@/components/farmgate-trade-board";
+import { UnitConverter } from "@/components/unit-converter";
+import { PdfReportExporter } from "@/components/pdf-report-exporter";
+import { VoiceAudioSimulator } from "@/components/voice-audio-simulator";
+import { SeasonalProfitPlanner } from "@/components/seasonal-profit-planner";
 import { getCanonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { CheckCircle2, TrendingUp, Smartphone, MapPin, ArrowRight, UserCheck, Image as ImageIcon } from "lucide-react";
 
@@ -397,45 +401,73 @@ function Index() {
         </div>
       </section>
 
-      {/* FEATURE 1: Multi-Market Comparison Matrix */}
+      {/* Multi-Market Comparison Matrix */}
       <section id="comparison" className="py-16 border-b border-border bg-background">
         <div className="container-page">
           <MarketComparisonMatrix />
         </div>
       </section>
 
-      {/* FEATURE 2: Crop Transport Profitability Calculator */}
-      <section id="calculator" className="py-16 border-b border-border bg-card/40">
+      {/* NEW FEATURE 1: Unit & Kilogram Price Converter */}
+      <section id="converter" className="py-16 border-b border-border bg-card/40">
+        <div className="container-page">
+          <UnitConverter />
+        </div>
+      </section>
+
+      {/* Crop Transport Profitability Calculator */}
+      <section id="calculator" className="py-16 border-b border-border bg-background">
         <div className="container-page">
           <TransportCalculator />
         </div>
       </section>
 
-      {/* FEATURE 3: Regional Weather & Transport Logistics Advisory */}
+      {/* NEW FEATURE 2: Farm Input Cost & Seasonal Profit Planner */}
+      <section id="planner" className="py-16 border-b border-border bg-card/40">
+        <div className="container-page">
+          <SeasonalProfitPlanner />
+        </div>
+      </section>
+
+      {/* Regional Weather & Transport Logistics Advisory */}
       <section id="weather" className="py-16 border-b border-border bg-background">
         <div className="container-page">
           <RegionalWeatherWidget />
         </div>
       </section>
 
-      {/* FEATURE 4: Ghana Crop Harvest & Price Scarcity Calendar */}
+      {/* Ghana Crop Harvest & Price Scarcity Calendar */}
       <section id="calendar" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <HarvestCalendar />
         </div>
       </section>
 
-      {/* FEATURE 5: Direct Farmgate Trade Bulletin Board */}
+      {/* Direct Farmgate Trade Bulletin Board */}
       <section id="trade-board" className="py-16 border-b border-border bg-background">
         <div className="container-page">
           <FarmgateTradeBoard />
         </div>
       </section>
 
-      {/* FEATURE 6: Interactive USSD *718# Simulator */}
-      <section id="ussd" className="py-16 border-b border-border bg-card/40">
+      {/* NEW FEATURE 3: Local Language Voice IVR Simulator */}
+      <section id="voice" className="py-16 border-b border-border bg-card/40">
+        <div className="container-page">
+          <VoiceAudioSimulator />
+        </div>
+      </section>
+
+      {/* Interactive USSD *718# Simulator */}
+      <section id="ussd" className="py-16 border-b border-border bg-background">
         <div className="container-page">
           <UssdSimulator />
+        </div>
+      </section>
+
+      {/* NEW FEATURE 4: Daily Market Report Exporter */}
+      <section id="exporter" className="py-16 border-b border-border bg-card/40">
+        <div className="container-page">
+          <PdfReportExporter />
         </div>
       </section>
 
