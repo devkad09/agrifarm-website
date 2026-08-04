@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Volume2, VolumeX, Play, Square, Mic, Globe, BookOpen, Repeat } from "lucide-react";
-import { toast } from "sonner";
+import { Globe, BookOpen, FileText } from "lucide-react";
 
 interface TranslationItem {
   cropKey: string;
@@ -182,34 +181,10 @@ const languageOptions = [
 export function VoiceAudioSimulator() {
   const [selectedCropKey, setSelectedCropKey] = useState("maize");
   const [selectedLangKey, setSelectedLangKey] = useState("twi");
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const activeItem = translationDatabase.find((item) => item.cropKey === selectedCropKey) || translationDatabase[0];
   const activeLangConfig = languageOptions.find((l) => l.key === selectedLangKey) || languageOptions[0];
   const activeTranslation = activeItem.translations[selectedLangKey] || activeItem.translations["twi"];
-
-  function togglePlayAudio() {
-    if (isPlaying) {
-      window.speechSynthesis?.cancel();
-      setIsPlaying(false);
-      return;
-    }
-
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      // Use clean phonetic text for speech synthesis so speech engine pronounces accurately
-      const utterance = new SpeechSynthesisUtterance(activeTranslation.phonetic);
-      utterance.rate = 0.85; // Natural spoken rate
-      utterance.pitch = 1.0;
-      utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = () => setIsPlaying(false);
-      window.speechSynthesis.speak(utterance);
-      setIsPlaying(true);
-      toast.success(`Playing Voice Audio in ${activeLangConfig.name}`);
-    } else {
-      toast.error("Speech Synthesis not supported in this browser");
-    }
-  }
 
   return (
     <div className="card-tactile p-6 md:p-8 rounded-2xl border border-border bg-card space-y-6">
@@ -217,13 +192,13 @@ export function VoiceAudioSimulator() {
         <div>
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary mb-1">
             <Globe className="w-4 h-4" />
-            <span>Grammatically Accurate Local Language Translation</span>
+            <span>Multilingual Market Phrasebook & Dictionary</span>
           </div>
           <h3 className="font-display text-2xl font-semibold text-foreground">
-            Ghanaian Agricultural Language & Audio IVR Translator
+            Ghanaian Agricultural Written Language Phrasebook
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Real-time market price sentence translations and phonetic audio guides in Twi, Dagbani, Ga, Ewe, and Hausa.
+            Read authentic market price sentence translations, vocabulary keys, and phonetic guides in Twi, Dagbani, Ga, Ewe, and Hausa.
           </p>
         </div>
 
@@ -232,11 +207,7 @@ export function VoiceAudioSimulator() {
           {translationDatabase.map((item) => (
             <button
               key={item.cropKey}
-              onClick={() => {
-                window.speechSynthesis?.cancel();
-                setIsPlaying(false);
-                setSelectedCropKey(item.cropKey);
-              }}
+              onClick={() => setSelectedCropKey(item.cropKey)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                 selectedCropKey === item.cropKey ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
               }`}
@@ -253,11 +224,7 @@ export function VoiceAudioSimulator() {
         {languageOptions.map((lang) => (
           <button
             key={lang.key}
-            onClick={() => {
-              window.speechSynthesis?.cancel();
-              setIsPlaying(false);
-              setSelectedLangKey(lang.key);
-            }}
+            onClick={() => setSelectedLangKey(lang.key)}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
               selectedLangKey === lang.key
                 ? "bg-foreground text-background shadow-2xs"
@@ -269,33 +236,21 @@ export function VoiceAudioSimulator() {
         ))}
       </div>
 
-      {/* Main Translation Output Area */}
+      {/* Main Written Translation Output Area */}
       <div className="grid md:grid-cols-12 gap-6 items-start">
         {/* Translation Output Card */}
         <div className="md:col-span-7 bg-background p-6 rounded-xl border border-border space-y-4">
-          <div className="flex items-center justify-between border-b border-border pb-3">
-            <div>
-              <span className="text-xs font-semibold text-primary uppercase tracking-wider block">
-                {activeLangConfig.name} ({activeLangConfig.native})
-              </span>
-              <span className="text-[11px] text-muted-foreground">{activeLangConfig.region}</span>
-            </div>
-
-            <button
-              onClick={togglePlayAudio}
-              className={`h-11 w-11 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
-                isPlaying ? "bg-red-600 text-white animate-pulse" : "bg-primary text-primary-foreground hover:bg-primary/90"
-              }`}
-              title={isPlaying ? "Stop Audio" : "Play Voice Prompt"}
-            >
-              {isPlaying ? <Square className="w-4 h-4" /> : <Play className="w-5 h-5 ml-0.5" />}
-            </button>
+          <div className="border-b border-border pb-3">
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider block">
+              {activeLangConfig.name} ({activeLangConfig.native})
+            </span>
+            <span className="text-[11px] text-muted-foreground">{activeLangConfig.region}</span>
           </div>
 
           {/* Authentic Native Script */}
           <div className="bg-card p-4 rounded-xl border border-border space-y-1.5">
-            <span className="text-[10px] font-mono font-bold uppercase text-primary tracking-wider block">
-              Official Native Dialect Sentence:
+            <span className="text-[10px] font-mono font-bold uppercase text-primary tracking-wider flex items-center gap-1">
+              <FileText className="w-3.5 h-3.5" /> Written Native Dialect Sentence:
             </span>
             <p className="font-display font-semibold text-lg text-foreground leading-relaxed">
               "{activeTranslation.nativeText}"
@@ -305,7 +260,7 @@ export function VoiceAudioSimulator() {
           {/* Phonetic Pronunciation Guide */}
           <div className="bg-secondary/60 p-4 rounded-xl border border-border space-y-1">
             <span className="text-[10px] font-mono font-bold uppercase text-muted-foreground tracking-wider block">
-              Phonetic Pronunciation Guide (How to Speak):
+              Phonetic Pronunciation Guide:
             </span>
             <p className="font-mono text-xs text-foreground leading-relaxed">
               {activeTranslation.phonetic}
@@ -321,15 +276,15 @@ export function VoiceAudioSimulator() {
             </h4>
             <div className="space-y-1.5 text-muted-foreground">
               <div className="p-2 rounded bg-background border border-border flex justify-between">
-                <span className="text-muted-foreground">Crop Name:</span>
+                <span className="text-muted-foreground">Crop Term:</span>
                 <strong className="text-foreground font-semibold">{activeTranslation.cropWord}</strong>
               </div>
               <div className="p-2 rounded bg-background border border-border flex justify-between">
-                <span className="text-muted-foreground">Market Name:</span>
+                <span className="text-muted-foreground">Market Hub:</span>
                 <strong className="text-foreground font-semibold">{activeTranslation.marketWord}</strong>
               </div>
               <div className="p-2 rounded bg-background border border-border flex justify-between">
-                <span className="text-muted-foreground">Price Term:</span>
+                <span className="text-muted-foreground">Price Metric:</span>
                 <strong className="text-foreground font-mono font-bold">{activeTranslation.priceWord}</strong>
               </div>
             </div>

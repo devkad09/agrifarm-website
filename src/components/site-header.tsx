@@ -94,7 +94,7 @@ export function SiteHeader() {
             Trade Board
           </a>
           <a href="#voice" className="text-muted-foreground hover:text-foreground transition-colors">
-            Voice IVR
+            Phrasebook
           </a>
           <a href="#ussd" className="text-muted-foreground hover:text-foreground transition-colors font-mono">
             *718#
