@@ -18,6 +18,10 @@ import { UnitConverter } from "@/components/unit-converter";
 import { PdfReportExporter } from "@/components/pdf-report-exporter";
 import { VoiceAudioSimulator } from "@/components/voice-audio-simulator";
 import { SeasonalProfitPlanner } from "@/components/seasonal-profit-planner";
+import { LogisticsMap } from "@/components/logistics-map";
+import { CropHealthAdvisor } from "@/components/crop-health-advisor";
+import { SubsidyFinder } from "@/components/subsidy-finder";
+import { PriceThresholdAlert } from "@/components/price-threshold-alert";
 import { getCanonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { CheckCircle2, TrendingUp, Smartphone, MapPin, ArrowRight, UserCheck, Image as ImageIcon } from "lucide-react";
 
@@ -408,31 +412,45 @@ function Index() {
         </div>
       </section>
 
-      {/* NEW FEATURE 1: Unit & Kilogram Price Converter */}
+      {/* Unit & Kilogram Price Converter */}
       <section id="converter" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <UnitConverter />
         </div>
       </section>
 
+      {/* NEW FEATURE 1: Ghana Inter-Regional Logistics & Supply Corridor Map */}
+      <section id="logistics" className="py-16 border-b border-border bg-background">
+        <div className="container-page">
+          <LogisticsMap />
+        </div>
+      </section>
+
       {/* Crop Transport Profitability Calculator */}
-      <section id="calculator" className="py-16 border-b border-border bg-background">
+      <section id="calculator" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <TransportCalculator />
         </div>
       </section>
 
-      {/* NEW FEATURE 2: Farm Input Cost & Seasonal Profit Planner */}
-      <section id="planner" className="py-16 border-b border-border bg-card/40">
+      {/* Farm Input Cost & Seasonal Profit Planner */}
+      <section id="planner" className="py-16 border-b border-border bg-background">
         <div className="container-page">
           <SeasonalProfitPlanner />
         </div>
       </section>
 
       {/* Regional Weather & Transport Logistics Advisory */}
-      <section id="weather" className="py-16 border-b border-border bg-background">
+      <section id="weather" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <RegionalWeatherWidget />
+        </div>
+      </section>
+
+      {/* NEW FEATURE 2: Crop Pest & Disease Early Warning Guide */}
+      <section id="crop-health" className="py-16 border-b border-border bg-background">
+        <div className="container-page">
+          <CropHealthAdvisor />
         </div>
       </section>
 
@@ -450,21 +468,35 @@ function Index() {
         </div>
       </section>
 
-      {/* NEW FEATURE 3: Local Language Voice IVR Simulator */}
-      <section id="voice" className="py-16 border-b border-border bg-card/40">
+      {/* NEW FEATURE 3: MoFA & PFJ 2.0 Subsidized Input Depot Directory */}
+      <section id="subsidies" className="py-16 border-b border-border bg-card/40">
+        <div className="container-page">
+          <SubsidyFinder />
+        </div>
+      </section>
+
+      {/* Multilingual Market Phrasebook */}
+      <section id="voice" className="py-16 border-b border-border bg-background">
         <div className="container-page">
           <VoiceAudioSimulator />
         </div>
       </section>
 
       {/* Interactive USSD *718# Simulator */}
-      <section id="ussd" className="py-16 border-b border-border bg-background">
+      <section id="ussd" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <UssdSimulator />
         </div>
       </section>
 
-      {/* NEW FEATURE 4: Daily Market Report Exporter */}
+      {/* NEW FEATURE 4: Target SMS Price Threshold Alert Customizer */}
+      <section id="threshold-alert" className="py-16 border-b border-border bg-background">
+        <div className="container-page">
+          <PriceThresholdAlert />
+        </div>
+      </section>
+
+      {/* Daily Market Report Exporter */}
       <section id="exporter" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <PdfReportExporter />

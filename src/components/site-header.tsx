@@ -74,27 +74,24 @@ export function SiteHeader() {
           </div>
         </div>
 
-        <nav className="hidden xl:flex items-center gap-5 text-xs font-medium">
+        <nav className="hidden xl:flex items-center gap-4 text-xs font-medium">
           <a href="#exchange" className="text-muted-foreground hover:text-foreground transition-colors">
             Commodities
           </a>
           <a href="#comparison" className="text-muted-foreground hover:text-foreground transition-colors">
             Compare
           </a>
-          <a href="#converter" className="text-muted-foreground hover:text-foreground transition-colors">
-            Unit/kg
+          <a href="#logistics" className="text-muted-foreground hover:text-foreground transition-colors">
+            Logistics Map
           </a>
-          <a href="#calculator" className="text-muted-foreground hover:text-foreground transition-colors">
-            Freight
+          <a href="#crop-health" className="text-muted-foreground hover:text-foreground transition-colors">
+            Crop Health
           </a>
-          <a href="#planner" className="text-muted-foreground hover:text-foreground transition-colors">
-            Profit Planner
+          <a href="#subsidies" className="text-muted-foreground hover:text-foreground transition-colors">
+            PFJ Subsidies
           </a>
-          <a href="#trade-board" className="text-muted-foreground hover:text-foreground transition-colors">
-            Trade Board
-          </a>
-          <a href="#voice" className="text-muted-foreground hover:text-foreground transition-colors">
-            Phrasebook
+          <a href="#threshold-alert" className="text-muted-foreground hover:text-foreground transition-colors">
+            Price Alert
           </a>
           <a href="#ussd" className="text-muted-foreground hover:text-foreground transition-colors font-mono">
             *718#
