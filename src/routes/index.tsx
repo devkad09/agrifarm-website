@@ -10,6 +10,10 @@ import { SmsAlertSection } from "@/components/sms-alert-section";
 import { TransportCalculator } from "@/components/transport-calculator";
 import { HarvestCalendar } from "@/components/harvest-calendar";
 import { FieldOfficersDirectory } from "@/components/field-officers-directory";
+import { MarketComparisonMatrix } from "@/components/market-comparison-matrix";
+import { RegionalWeatherWidget } from "@/components/regional-weather-widget";
+import { UssdSimulator } from "@/components/ussd-simulator";
+import { FarmgateTradeBoard } from "@/components/farmgate-trade-board";
 import { getCanonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { CheckCircle2, TrendingUp, Smartphone, MapPin, ArrowRight, UserCheck, Image as ImageIcon } from "lucide-react";
 
@@ -167,7 +171,7 @@ function Index() {
             </div>
           </div>
 
-          {/* Hero Interactive Market Query Box with Micro Float Animation */}
+          {/* Hero Interactive Market Query Box */}
           <div className="lg:col-span-5">
             <div className="card-tactile p-6 rounded-2xl border-2 border-primary/20 space-y-4 animate-float shadow-md">
               <div className="flex items-center justify-between border-b border-border pb-3">
@@ -240,7 +244,7 @@ function Index() {
         </div>
       </section>
 
-      {/* NEW SECTION: Ghanaian Produce Gallery & Gate Photography */}
+      {/* Ghanaian Produce Gallery & Gate Photography */}
       <section className="py-16 border-b border-border bg-background">
         <div className="container-page space-y-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -310,61 +314,8 @@ function Index() {
         </div>
       </section>
 
-      {/* Problem & Reality Comparison Section */}
-      <section className="py-16 border-b border-border bg-card/40">
-        <div className="container-page space-y-10">
-          <div className="max-w-3xl">
-            <span className="text-xs font-semibold uppercase tracking-widest text-primary">Agricultural Market Realities</span>
-            <h2 className="mt-2 font-display text-3xl sm:text-4xl font-semibold">
-              Removing information asymmetry across Ghana's food corridors.
-            </h2>
-            <p className="mt-3 text-muted-foreground text-sm leading-relaxed">
-              Without accurate market price data, smallholder farmers often accept below-market aggregator offers or waste fuel transporting perishable crops to oversupplied markets.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="card-tactile p-6 rounded-2xl border-l-4 border-l-red-500 space-y-3">
-              <h3 className="font-display font-semibold text-lg text-foreground">Traditional Market Friction</h3>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 font-bold">•</span>
-                  <span><strong>Middleman Pricing Power:</strong> Farmers travel without knowing what buyers paid yesterday in Kumasi or Accra.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 font-bold">•</span>
-                  <span><strong>Perishable Spoiled Crop Losses:</strong> Tomatoes and plantains spoil while searching for competitive buyers.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 font-bold">•</span>
-                  <span><strong>No Historical Trend Visibility:</strong> Planting schedules made without seasonal price history data.</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="card-tactile p-6 rounded-2xl border-l-4 border-l-primary space-y-3">
-              <h3 className="font-display font-semibold text-lg text-foreground">The AgriFarm Advantage</h3>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary flex-none mt-0.5" />
-                  <span><strong>Verified Gate Prices:</strong> On-the-ground market officers submit verified wholesale prices every morning.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary flex-none mt-0.5" />
-                  <span><strong>Feature Phone Accessibility:</strong> SMS alerts and shortcode queries ensure connectivity even in zero-data zones.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-primary flex-none mt-0.5" />
-                  <span><strong>Multi-Market Comparison:</strong> Compare Kejetia vs Techiman rates before loading transport trucks.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Live Commodity Exchange Board */}
-      <section id="exchange" className="py-16 border-b border-border bg-background">
+      <section id="exchange" className="py-16 border-b border-border bg-card/40">
         <div className="container-page space-y-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
@@ -446,72 +397,59 @@ function Index() {
         </div>
       </section>
 
-      {/* Feature 1: Crop Transport Profitability Calculator */}
+      {/* FEATURE 1: Multi-Market Comparison Matrix */}
+      <section id="comparison" className="py-16 border-b border-border bg-background">
+        <div className="container-page">
+          <MarketComparisonMatrix />
+        </div>
+      </section>
+
+      {/* FEATURE 2: Crop Transport Profitability Calculator */}
       <section id="calculator" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <TransportCalculator />
         </div>
       </section>
 
-      {/* Feature 2: Ghana Crop Harvest & Price Scarcity Calendar */}
-      <section id="calendar" className="py-16 border-b border-border bg-background">
+      {/* FEATURE 3: Regional Weather & Transport Logistics Advisory */}
+      <section id="weather" className="py-16 border-b border-border bg-background">
+        <div className="container-page">
+          <RegionalWeatherWidget />
+        </div>
+      </section>
+
+      {/* FEATURE 4: Ghana Crop Harvest & Price Scarcity Calendar */}
+      <section id="calendar" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <HarvestCalendar />
         </div>
       </section>
 
-      {/* Feature 3: Verified Market Officers Directory */}
-      <section id="officers" className="py-16 border-b border-border bg-card/40">
+      {/* FEATURE 5: Direct Farmgate Trade Bulletin Board */}
+      <section id="trade-board" className="py-16 border-b border-border bg-background">
+        <div className="container-page">
+          <FarmgateTradeBoard />
+        </div>
+      </section>
+
+      {/* FEATURE 6: Interactive USSD *718# Simulator */}
+      <section id="ussd" className="py-16 border-b border-border bg-card/40">
+        <div className="container-page">
+          <UssdSimulator />
+        </div>
+      </section>
+
+      {/* Verified Market Officers Directory */}
+      <section id="officers" className="py-16 border-b border-border bg-background">
         <div className="container-page">
           <FieldOfficersDirectory />
         </div>
       </section>
 
       {/* Interactive SMS Alert Section */}
-      <section id="sms-alerts" className="py-16 border-b border-border bg-background">
+      <section id="sms-alerts" className="py-16 border-b border-border bg-card/40">
         <div className="container-page">
           <SmsAlertSection />
-        </div>
-      </section>
-
-      {/* Operational Pipeline / How it Works */}
-      <section id="how" className="py-16 border-b border-border bg-card/60">
-        <div className="container-page grid lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-5">
-            <img
-              src={marketImg}
-              alt="Vibrant Ghanaian market scene"
-              width={1000}
-              height={750}
-              className="rounded-2xl border border-border shadow-md object-cover aspect-[4/3]"
-            />
-          </div>
-
-          <div className="lg:col-span-7 space-y-6">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-widest text-primary">System Architecture</span>
-              <h2 className="mt-2 font-display text-3xl sm:text-4xl font-semibold">
-                From field officer clipboard to phone display in 4 steps.
-              </h2>
-            </div>
-
-            <div className="space-y-4">
-              {[
-                { step: "01", title: "Market Gate Price Recording", desc: "Designated field officers collect early morning wholesale quotes directly from traders at market entrances." },
-                { step: "02", title: "Verification & Outlier Detection", desc: "Submissions undergo automated price range verification to eliminate artificial market rumors." },
-                { step: "03", title: "Multi-Channel Broadcast", desc: "Verified price data feeds both the online dashboard and Africa's Talking SMS shortcode gateway." },
-                { step: "04", title: "Informed Trading & Transportation", desc: "Farmers compare prices and set target SMS alerts before dispatching produce to market." },
-              ].map((s) => (
-                <div key={s.step} className="flex items-start gap-4 p-3.5 rounded-xl border border-border bg-card">
-                  <span className="font-mono font-bold text-sm text-primary bg-secondary px-2.5 py-1 rounded-md">{s.step}</span>
-                  <div>
-                    <h3 className="font-display font-semibold text-base text-foreground">{s.title}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">{s.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 

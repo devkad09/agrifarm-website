@@ -74,18 +74,24 @@ export function SiteHeader() {
           </div>
         </div>
 
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+        <nav className="hidden xl:flex items-center gap-5 text-xs font-medium">
           <a href="#exchange" className="text-muted-foreground hover:text-foreground transition-colors">
             Commodities
           </a>
+          <a href="#comparison" className="text-muted-foreground hover:text-foreground transition-colors">
+            Compare Markets
+          </a>
           <a href="#calculator" className="text-muted-foreground hover:text-foreground transition-colors">
-            Transport Margin
+            Freight Calculator
           </a>
-          <a href="#calendar" className="text-muted-foreground hover:text-foreground transition-colors">
-            Harvest Calendar
+          <a href="#weather" className="text-muted-foreground hover:text-foreground transition-colors">
+            Weather & Roads
           </a>
-          <a href="#sms-alerts" className="text-muted-foreground hover:text-foreground transition-colors">
-            SMS 718
+          <a href="#trade-board" className="text-muted-foreground hover:text-foreground transition-colors">
+            Trade Board
+          </a>
+          <a href="#ussd" className="text-muted-foreground hover:text-foreground transition-colors font-mono">
+            *718#
           </a>
           <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors" activeProps={{ className: "text-foreground font-semibold" }}>
             Field Journal
