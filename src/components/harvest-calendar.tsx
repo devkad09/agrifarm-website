@@ -103,23 +103,25 @@ export function HarvestCalendar() {
           </div>
 
           {/* 12 Month Heatmap Bar */}
-          <div className="grid grid-cols-12 gap-1 pt-2">
-            {selectedCrop.months.map((status, idx) => (
-              <div key={idx} className="flex flex-col items-center gap-1.5">
-                <div
-                  className={`w-full h-12 rounded-lg flex items-center justify-center font-mono text-[11px] font-bold transition-all ${
-                    status === "peak"
-                      ? "bg-emerald-600 text-white shadow-2xs"
-                      : status === "lean"
-                      ? "bg-amber-500 text-slate-950 font-bold"
-                      : "bg-secondary text-muted-foreground border border-border"
-                  }`}
-                  title={`${monthNames[idx]}: ${status.toUpperCase()}`}
-                >
-                  {monthNames[idx]}
+          <div className="overflow-x-auto pb-1">
+            <div className="grid grid-cols-12 min-w-[540px] gap-1 pt-2">
+              {selectedCrop.months.map((status, idx) => (
+                <div key={idx} className="flex flex-col items-center gap-1.5">
+                  <div
+                    className={`w-full h-12 rounded-lg flex items-center justify-center font-mono text-[11px] font-bold transition-all ${
+                      status === "peak"
+                        ? "bg-emerald-600 text-white shadow-2xs"
+                        : status === "lean"
+                        ? "bg-amber-500 text-slate-950 font-bold"
+                        : "bg-secondary text-muted-foreground border border-border"
+                    }`}
+                    title={`${monthNames[idx]}: ${status.toUpperCase()}`}
+                  >
+                    {monthNames[idx]}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
