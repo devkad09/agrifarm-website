@@ -95,6 +95,9 @@ export function getReadingTime(content: string): number {
 }
 
 export async function listPublishedPosts(): Promise<BlogPost[]> {
+  if (typeof window === "undefined") {
+    return INITIAL_SEED_POSTS.map((p, idx) => ({ id: `seed-${idx}`, ...p }));
+  }
   try {
     const postsRef = collection(db, "blog_posts");
     const q = query(postsRef, where("published", "==", true));
@@ -111,6 +114,10 @@ export async function listPublishedPosts(): Promise<BlogPost[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  if (typeof window === "undefined") {
+    const foundSeed = INITIAL_SEED_POSTS.find((p) => p.slug === slug);
+    return foundSeed ? { id: "seed-item", ...foundSeed } : null;
+  }
   try {
     const postsRef = collection(db, "blog_posts");
     const q = query(postsRef, where("slug", "==", slug), where("published", "==", true));
@@ -128,6 +135,9 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
 }
 
 export async function listAllPostsForAdmin(): Promise<BlogPost[]> {
+  if (typeof window === "undefined") {
+    return INITIAL_SEED_POSTS.map((p, idx) => ({ id: `seed-${idx}`, ...p }));
+  }
   try {
     const postsRef = collection(db, "blog_posts");
     const snap = await getDocs(postsRef);
