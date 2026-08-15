@@ -5,7 +5,16 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
     return await next();
   } catch (error) {
-    if (error != null && typeof error === "object" && "statusCode" in error) {
+    if (
+      error != null &&
+      typeof error === "object" &&
+      ("statusCode" in error ||
+        "isRedirect" in error ||
+        "to" in error ||
+        "href" in error ||
+        "headers" in error ||
+        (error as any).constructor?.name === "Redirect")
+    ) {
       throw error;
     }
     console.error(error);
