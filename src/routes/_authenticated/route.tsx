@@ -1,30 +1,41 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Navigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { auth } from "@/integrations/firebase/client";
-import { onAuthStateChanged } from "firebase/auth";
-
-async function getCurrentUser() {
-  if (typeof window === "undefined") return null;
-  if (auth.currentUser) return auth.currentUser;
-  return new Promise((resolve) => {
-    const timer = setTimeout(() => resolve(null), 2500);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      clearTimeout(timer);
-      unsubscribe();
-      resolve(user);
-    });
-  });
-}
+import { onAuthStateChanged, type User } from "firebase/auth";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
-    if (typeof window === "undefined") return { user: null };
-    const user = await getCurrentUser();
-    if (!user) {
-      throw redirect({ to: "/auth" });
-    }
-    return { user };
-  },
-  component: () => <Outlet />,
+  component: AuthenticatedLayout,
 });
+
+function AuthenticatedLayout() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background grid place-items-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="text-sm text-muted-foreground font-medium">Verifying authentication session…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" />;
+  }
+
+  return <Outlet />;
+}
+
 
