@@ -83,6 +83,7 @@ const IMAGE_PRESETS = [
     url: "https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=1200&q=80",
   },
 ];
+const PRESET_IMAGES = IMAGE_PRESETS;
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -586,7 +587,7 @@ function AdminContent() {
                 {/* Preset image suggestions */}
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   <span className="text-[11px] text-muted-foreground font-medium mr-1">Presets:</span>
-                  {PRESET_IMAGES.map((img) => (
+                  {IMAGE_PRESETS.map((img) => (
                     <button
                       key={img.name}
                       type="button"
