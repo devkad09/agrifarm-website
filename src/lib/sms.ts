@@ -80,13 +80,53 @@ export async function cancelSmsAlert(id: string) {
   await deleteDoc(alertRef);
 }
 
+export async function sendAfricasTalkingSms({ to, body }: { to: string; body: string }) {
+  const apiKey = import.meta.env.VITE_AFRICASTALKING_API_KEY;
+  const username = import.meta.env.VITE_AFRICASTALKING_USERNAME || "sandbox";
+
+  if (!apiKey || apiKey.includes("REPLACE")) {
+    return null;
+  }
+
+  let formattedTo = to.replace(/\s+/g, "");
+  if (!formattedTo.startsWith("+")) {
+    formattedTo = "+" + formattedTo;
+  }
+
+  const endpoint = username === "sandbox"
+    ? "https://api.sandbox.africastalking.com/version1/messaging"
+    : "https://api.africastalking.com/version1/messaging";
+
+  const formData = new URLSearchParams();
+  formData.append("username", username);
+  formData.append("to", formattedTo);
+  formData.append("message", body);
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "apiKey": apiKey,
+      "Accept": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: formData.toString(),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Africa's Talking SMS dispatch failed");
+  }
+
+  return { status: "sent", provider: "Africa's Talking", to: formattedTo, body, response: json };
+}
+
 export async function sendRealTwilioSms({ to, body }: { to: string; body: string }) {
   const accountSid = import.meta.env.VITE_TWILIO_ACCOUNT_SID;
   const authToken = import.meta.env.VITE_TWILIO_AUTH_TOKEN;
   const fromNumber = import.meta.env.VITE_TWILIO_PHONE_NUMBER;
 
   if (!fromNumber || fromNumber.includes("REPLACE")) {
-    return { status: "simulated", to, body };
+    return null;
   }
 
   let formattedTo = to.replace(/\s+/g, "");
@@ -116,7 +156,7 @@ export async function sendRealTwilioSms({ to, body }: { to: string; body: string
     throw new Error(json.message || "Twilio SMS dispatch failed");
   }
 
-  return { status: "sent", sid: json.sid, to: formattedTo, body };
+  return { status: "sent", provider: "Twilio", sid: json.sid, to: formattedTo, body };
 }
 
 export async function broadcastPriceUpdateSmsAlerts(payload: {
@@ -157,9 +197,14 @@ export async function broadcastPriceUpdateSmsAlerts(payload: {
       
       let deliveryStatus = "DELIVERED (SIMULATED)";
       try {
-        const res = await sendRealTwilioSms({ to: sub.phone_number, body: text });
-        if (res.status === "sent") {
-          deliveryStatus = `SENT VIA TWILIO (SID: ${res.sid?.slice(0, 10)}...)`;
+        const atRes = await sendAfricasTalkingSms({ to: sub.phone_number, body: text });
+        if (atRes?.status === "sent") {
+          deliveryStatus = `SENT VIA AFRICA'S TALKING (${atRes.provider})`;
+        } else {
+          const twilioRes = await sendRealTwilioSms({ to: sub.phone_number, body: text });
+          if (twilioRes?.status === "sent") {
+            deliveryStatus = `SENT VIA TWILIO (SID: ${twilioRes.sid?.slice(0, 10)}...)`;
+          }
         }
       } catch (err) {
         deliveryStatus = `ERROR: ${err instanceof Error ? err.message : "Delivery failed"}`;
