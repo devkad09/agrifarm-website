@@ -4,12 +4,12 @@ import { getFirestore } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "demo-api-key",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "agrifarm-demo.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "agrifarm-demo",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "agrifarm-demo.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789:web:abcdef",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD17PurFS90_08PFTRscCfGM1uH7Y8bpOE",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "agrifarm-website.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "agrifarm-website",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "agrifarm-website.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "159145325875",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:159145325875:web:6ba8b4a98e0dfee5097a46",
 };
 
 // Initialize Firebase app singleton
