@@ -36,17 +36,17 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+  console.error("Root Error Component caught:", error);
   const router = useRouter();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
+      <div className="max-w-md text-center bg-card border border-border rounded-2xl p-8 shadow-sm">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          Page Load Notice
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+        <p className="mt-2 text-xs font-mono bg-muted/80 p-3 rounded-lg text-foreground break-all text-left max-h-32 overflow-y-auto">
+          {error?.message || "An unexpected error occurred during page rendering."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -54,15 +54,15 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
           >
-            Try again
+            Try Again
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="inline-flex items-center justify-center rounded-full border border-input bg-background px-5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            Go Home
           </a>
         </div>
       </div>
