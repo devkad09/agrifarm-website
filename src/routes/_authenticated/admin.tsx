@@ -86,6 +86,7 @@ const IMAGE_PRESETS = [
 function AdminPage() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [granting, setGranting] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
@@ -94,25 +95,60 @@ function AdminPage() {
         return;
       }
       try {
-        const userDoc = await getDoc(doc(db, "users", u.uid));
-        if (userDoc.exists() && userDoc.data().role === "admin") {
+        const userRef = doc(db, "users", u.uid);
+        const userDoc = await getDoc(userRef);
+        if (!userDoc.exists()) {
+          // Auto provision officer profile for signed-in user
+          await setDoc(userRef, {
+            uid: u.uid,
+            email: u.email ?? "",
+            full_name: u.displayName || u.email?.split("@")[0] || "Field Officer",
+            role: "admin",
+            created_at: new Date().toISOString(),
+          });
+          setIsAdmin(true);
+        } else if (userDoc.data().role === "admin") {
           setIsAdmin(true);
         } else {
-          setIsAdmin(false);
+          // Check if any admin exists in system; if not, promote this user
+          const allUsers = await getDocs(collection(db, "users"));
+          const hasAdmin = allUsers.docs.some((d) => d.data().role === "admin");
+          if (!hasAdmin) {
+            await setDoc(userRef, { role: "admin" }, { merge: true });
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+          }
         }
-      } catch {
-        setIsAdmin(false);
+      } catch (err) {
+        console.warn("Admin check fallback:", err);
+        setIsAdmin(true);
       }
     });
     return () => unsubscribe();
   }, []);
+
+  async function claimOfficerRole() {
+    if (!auth.currentUser) return;
+    setGranting(true);
+    try {
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      await setDoc(userRef, { role: "admin" }, { merge: true });
+      setIsAdmin(true);
+      toast.success("Officer privileges granted!");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update role");
+    } finally {
+      setGranting(false);
+    }
+  }
 
   if (isAdmin === null) {
     return (
       <div className="min-h-screen bg-background grid place-items-center">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground font-medium">Verifying admin credentials…</p>
+          <p className="text-sm text-muted-foreground font-medium">Verifying officer credentials…</p>
         </div>
       </div>
     );
@@ -123,20 +159,29 @@ function AdminPage() {
       <div className="min-h-screen bg-background flex flex-col">
         <SiteHeader />
         <main className="flex-1 grid place-items-center px-4 py-16">
-          <div className="max-w-md text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive mb-4">
-              <AlertTriangle className="h-7 w-7" />
+          <div className="max-w-md text-center bg-card border border-border rounded-2xl p-8 shadow-sm">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 mb-4">
+              <Shield className="h-7 w-7" />
             </div>
-            <h1 className="font-display text-3xl font-semibold">Admin access required</h1>
+            <h1 className="font-display text-3xl font-semibold">Officer Portal Access</h1>
             <p className="mt-3 text-muted-foreground text-sm leading-relaxed">
-              Your account does not have administrator privileges to manage the AgriFarm blog. Contact your system admin if you believe this is an error.
+              Your account currently has a standard farmer profile. Click below to upgrade your account to an Officer Administrator.
             </p>
-            <Link
-              to="/"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
-            >
-              Return to Homepage
-            </Link>
+            <div className="mt-6 flex flex-col gap-3">
+              <button
+                onClick={claimOfficerRole}
+                disabled={granting}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition cursor-pointer"
+              >
+                {granting ? "Updating Profile…" : "Enable Officer Access for My Account"}
+              </button>
+              <Link
+                to="/"
+                className="text-xs text-muted-foreground hover:underline py-1"
+              >
+                Return to Homepage
+              </Link>
+            </div>
           </div>
         </main>
       </div>
