@@ -1,4 +1,13 @@
-import { supabase } from "@/integrations/supabase/client";
+import { auth, db } from "@/integrations/firebase/client";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
 
 export interface SmsAlertSubscription {
   id?: string;
@@ -31,52 +40,44 @@ export async function subscribeSmsAlert(payload: {
   market: string;
   target_price?: number | null;
 }) {
-  const { data: userRes } = await supabase.auth.getUser();
-  const userId = userRes.user?.id || null;
-
-  // Format phone number to clean standard
+  const userId = auth.currentUser?.uid || null;
   const cleanedPhone = payload.phone_number.trim().replace(/\s+/g, "");
 
-  const { data, error } = await supabase
-    .from("sms_alerts")
-    .insert([
-      {
-        user_id: userId,
-        phone_number: cleanedPhone,
-        crop: payload.crop,
-        market: payload.market,
-        target_price: payload.target_price || null,
-        active: true,
-      },
-    ])
-    .select()
-    .single();
+  const docRef = await addDoc(collection(db, "sms_alerts"), {
+    user_id: userId,
+    phone_number: cleanedPhone,
+    crop: payload.crop,
+    market: payload.market,
+    target_price: payload.target_price || null,
+    active: true,
+    created_at: new Date().toISOString(),
+  });
 
-  if (error) throw error;
-  return data;
+  return { id: docRef.id, phone_number: cleanedPhone, ...payload };
 }
 
 export async function fetchUserSmsAlerts(phoneNumber?: string): Promise<SmsAlertSubscription[]> {
-  const { data: userRes } = await supabase.auth.getUser();
+  const currentUser = auth.currentUser;
+  const alertsRef = collection(db, "sms_alerts");
+  let q;
 
-  let query = supabase.from("sms_alerts").select("*").eq("active", true).order("created_at", { ascending: false });
-
-  if (userRes.user) {
-    query = query.eq("user_id", userRes.user.id);
+  if (currentUser) {
+    q = query(alertsRef, where("user_id", "==", currentUser.uid), where("active", "==", true));
   } else if (phoneNumber) {
-    query = query.eq("phone_number", phoneNumber);
+    q = query(alertsRef, where("phone_number", "==", phoneNumber), where("active", "==", true));
   } else {
     return [];
   }
 
-  const { data, error } = await query;
-  if (error) throw error;
-  return data || [];
+  const snap = await getDocs(q);
+  const list: SmsAlertSubscription[] = [];
+  snap.forEach((d) => list.push({ id: d.id, ...d.data() } as SmsAlertSubscription));
+  return list;
 }
 
 export async function cancelSmsAlert(id: string) {
-  const { error } = await supabase.from("sms_alerts").delete().eq("id", id);
-  if (error) throw error;
+  const alertRef = doc(db, "sms_alerts", id);
+  await deleteDoc(alertRef);
 }
 
 export async function sendRealTwilioSms({ to, body }: { to: string; body: string }) {
@@ -124,13 +125,9 @@ export async function broadcastPriceUpdateSmsAlerts(payload: {
   newPrice: number;
   oldPrice?: number;
 }) {
-  const { data: subscribers, error } = await supabase
-    .from("sms_alerts")
-    .select("*");
-
-  if (error) throw error;
-
-  const allSubscribers = subscribers || [];
+  const alertsSnap = await getDocs(collection(db, "sms_alerts"));
+  const allSubscribers: SmsAlertSubscription[] = [];
+  alertsSnap.forEach((d) => allSubscribers.push({ id: d.id, ...d.data() } as SmsAlertSubscription));
 
   const uniqueSubscribersMap = new Map();
   allSubscribers.forEach((sub) => {

@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { auth, db } from "@/integrations/firebase/client";
+import { onAuthStateChanged, signOut as firebaseSignOut, type User } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { Menu, X, Smartphone, ArrowRight } from "lucide-react";
 
 export function SiteHeader() {
@@ -13,36 +14,33 @@ export function SiteHeader() {
   useEffect(() => {
     let mounted = true;
 
-    async function refreshRole(u: User | null) {
-      if (!u) return setIsAdmin(false);
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", u.id)
-        .eq("role", "admin")
-        .maybeSingle();
-      if (mounted) setIsAdmin(!!data);
-    }
-
-    supabase.auth.getSession().then(({ data }) => {
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (!mounted) return;
-      setUser(data.session?.user ?? null);
-      refreshRole(data.session?.user ?? null);
+      setUser(u);
+      if (u) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", u.uid));
+          if (mounted && userDoc.exists()) {
+            setIsAdmin(userDoc.data().role === "admin");
+          } else if (mounted) {
+            setIsAdmin(false);
+          }
+        } catch {
+          if (mounted) setIsAdmin(false);
+        }
+      } else {
+        if (mounted) setIsAdmin(false);
+      }
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      setUser(session?.user ?? null);
-      refreshRole(session?.user ?? null);
-    });
     return () => {
       mounted = false;
-      sub.subscription.unsubscribe();
+      unsubscribe();
     };
   }, []);
 
   async function signOut() {
-    await supabase.auth.signOut();
+    await firebaseSignOut(auth);
     navigate({ to: "/" });
   }
 

@@ -141,19 +141,19 @@ function RootComponent() {
     if (typeof window === "undefined") return;
     let cancelled = false;
     (async () => {
-      const { supabase } = await import("@/integrations/supabase/client");
+      const { auth } = await import("@/integrations/firebase/client");
+      const { onAuthStateChanged } = await import("firebase/auth");
       if (cancelled) return;
-      const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
         router.invalidate();
-        if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+        if (user) queryClient.invalidateQueries();
       });
-      (window as unknown as { __authSub?: { unsubscribe(): void } }).__authSub = sub.subscription;
+      (window as unknown as { __authSub?: () => void }).__authSub = unsubscribe;
     })();
     return () => {
       cancelled = true;
-      const w = window as unknown as { __authSub?: { unsubscribe(): void } };
-      w.__authSub?.unsubscribe();
+      const w = window as unknown as { __authSub?: () => void };
+      w.__authSub?.();
     };
   }, [queryClient, router]);
 

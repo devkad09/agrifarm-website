@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState, useId } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { auth, db } from "@/integrations/firebase/client";
+import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import {
   listAllPostsForAdmin,
   togglePublishPost,
@@ -63,18 +63,18 @@ const postSchema = z.object({
   published: z.boolean(),
 });
 
-const PRESET_IMAGES = [
+const IMAGE_PRESETS = [
   {
-    name: "Harvest / Maize",
-    url: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80",
+    name: "Maize Harvest",
+    url: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    name: "Market Stall",
+    name: "Fresh Tomatoes",
+    url: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    name: "Busy Market",
     url: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    name: "Fresh Crops",
-    url: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=1200&q=80",
   },
   {
     name: "Farming Field",
@@ -87,17 +87,23 @@ function AdminPage() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   useEffect(() => {
-    (async () => {
-      const { data: userRes } = await supabase.auth.getUser();
-      if (!userRes.user) return setIsAdmin(false);
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userRes.user.id)
-        .eq("role", "admin")
-        .maybeSingle();
-      setIsAdmin(!!data);
-    })();
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      if (!u) {
+        setIsAdmin(false);
+        return;
+      }
+      try {
+        const userDoc = await getDoc(doc(db, "users", u.uid));
+        if (userDoc.exists() && userDoc.data().role === "admin") {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      } catch {
+        setIsAdmin(false);
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
   if (isAdmin === null) {
@@ -162,7 +168,7 @@ function AdminPage() {
               <ExternalLink className="h-3 w-3 opacity-60" />
             </Link>
             <button
-              onClick={() => supabase.auth.signOut().then(() => navigate({ to: "/" }))}
+              onClick={() => firebaseSignOut(auth).then(() => navigate({ to: "/" }))}
               className="rounded-full border border-border px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition"
             >
               Sign out
@@ -326,7 +332,7 @@ function AdminContent() {
 
     setSaving(true);
     try {
-      const { data: userRes } = await supabase.auth.getUser();
+      const currentUser = auth.currentUser;
       await upsertBlogPost({
         id: draft.id,
         title: parsed.data.title,
@@ -335,7 +341,7 @@ function AdminContent() {
         content: parsed.data.content,
         cover_image_url: parsed.data.cover_image_url,
         published: asPublished,
-        author_id: userRes.user?.id,
+        author_id: currentUser?.uid,
       });
 
       qc.invalidateQueries({ queryKey: ["blog"] });

@@ -1,6 +1,14 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { auth, db, googleProvider } from "@/integrations/firebase/client";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  onAuthStateChanged,
+  updateProfile,
+} from "firebase/auth";
+import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -38,13 +46,33 @@ function AuthPage() {
   });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/" });
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) navigate({ to: "/" });
     });
+    return () => unsubscribe();
   }, [navigate]);
 
   const onChange = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  async function ensureUserProfile(user: { uid: string; email: string | null; displayName?: string | null }, extra?: { full_name?: string; phone?: string; region?: string }) {
+    const userRef = doc(db, "users", user.uid);
+    const docSnap = await getDoc(userRef);
+    if (!docSnap.exists()) {
+      const usersSnap = await getDocs(collection(db, "users"));
+      const isFirstUser = usersSnap.empty;
+      const role = isFirstUser ? "admin" : "farmer";
+      await setDoc(userRef, {
+        uid: user.uid,
+        email: user.email ?? "",
+        full_name: extra?.full_name || user.displayName || "",
+        phone: extra?.phone || "",
+        region: extra?.region || "",
+        role,
+        created_at: new Date().toISOString(),
+      });
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,19 +84,13 @@ function AuthPage() {
           toast.error(parsed.error.issues[0].message);
           return;
         }
-        const { error } = await supabase.auth.signUp({
-          email: parsed.data.email,
-          password: parsed.data.password,
-          options: {
-            emailRedirectTo: window.location.origin,
-            data: {
-              full_name: parsed.data.full_name,
-              phone: parsed.data.phone ?? "",
-              region: parsed.data.region ?? "",
-            },
-          },
+        const userCred = await createUserWithEmailAndPassword(auth, parsed.data.email, parsed.data.password);
+        await updateProfile(userCred.user, { displayName: parsed.data.full_name });
+        await ensureUserProfile(userCred.user, {
+          full_name: parsed.data.full_name,
+          phone: parsed.data.phone ?? "",
+          region: parsed.data.region ?? "",
         });
-        if (error) throw error;
         toast.success("Account created — welcome to AgriFarm!");
         navigate({ to: "/" });
       } else {
@@ -77,11 +99,7 @@ function AuthPage() {
           toast.error(parsed.error.issues[0].message);
           return;
         }
-        const { error } = await supabase.auth.signInWithPassword({
-          email: parsed.data.email,
-          password: parsed.data.password,
-        });
-        if (error) throw error;
+        await signInWithEmailAndPassword(auth, parsed.data.email, parsed.data.password);
         toast.success("Welcome back");
         navigate({ to: "/" });
       }
@@ -95,13 +113,10 @@ function AuthPage() {
   async function onGoogle() {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: window.location.origin,
-        },
-      });
-      if (error) throw error;
+      const userCred = await signInWithPopup(auth, googleProvider);
+      await ensureUserProfile(userCred.user);
+      toast.success("Welcome back");
+      navigate({ to: "/" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Google sign-in failed");
     } finally {
